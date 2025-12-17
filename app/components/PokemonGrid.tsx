@@ -102,29 +102,17 @@ function PokemonCard({ item }: { item: PokemonItem }) {
 
 export default function PokemonGrid({ items }: Props) {
   return (
-    <>
-      <style jsx>{`
-        @keyframes spin {
-          0% {
-            transform: rotate(0deg);
-          }
-          100% {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(6, 1fr)",
-          gap: "50px",
-        }}
-      >
-        {items.map((item) => (
-          <PokemonCard key={item.name} item={item} />
-        ))}
-      </div>
-    </>
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(6, 1fr)",
+        gap: "50px",
+      }}
+    >
+      {items.map((item) => (
+        <PokemonCard key={item.name} item={item} />
+      ))}
+    </div>
   );
 }
 
