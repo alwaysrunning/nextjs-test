@@ -10,23 +10,17 @@ export const metadata: Metadata = {
 };
 
 async function getTypes() {
-  try {
-    const res = await fetch('https://pokeapi.co/api/v2/type', {
-      cache: 'no-store',
-    });
-    
-    if (!res.ok) {
-      throw new Error('Failed to fetch types');
-    }
-    
-    const data = await res.json();
-    
-    return data.results.map((item: { name: string; url: string }) => item.name);
-  } catch (error) {
-    console.error('getTypes error, fallback to empty list', error);
-    // 降级：返回空数组，页面继续可用
-    return [];
+  const res = await fetch('https://pokeapi.co/api/v2/type', {
+    cache: 'no-store',
+  });
+  
+  if (!res.ok) {
+    throw new Error('Failed to fetch types');
   }
+  
+  const data = await res.json();
+  
+  return data.results.map((item: { name: string; url: string }) => item.name);
 }
 
 async function getPokemonByType(types: string[]): Promise<{ name: string; url: string }[]> {
@@ -76,39 +70,30 @@ async function getPokemonByType(types: string[]): Promise<{ name: string; url: s
 }
 
 async function getData(page: number, types?: string[]) {
-  try {
-    // 如果指定了类型，使用 type 接口
-    if (types && types.length > 0) {
-      const allPokemon = await getPokemonByType(types);
-      const totalCount = allPokemon.length;
-      const offset = (page - 1) * PAGE_SIZE;
-      const paginatedPokemon = allPokemon.slice(offset, offset + PAGE_SIZE);
-      
-      return {
-        count: totalCount,
-        results: paginatedPokemon
-      };
-    }
-  
-    // 没有类型过滤时，使用原来的接口
+  // 如果指定了类型，使用 type 接口
+  if (types && types.length > 0) {
+    const allPokemon = await getPokemonByType(types);
+    const totalCount = allPokemon.length;
     const offset = (page - 1) * PAGE_SIZE;
-    const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${PAGE_SIZE}&offset=${offset}`, {
-      cache: 'no-store',
-    });
+    const paginatedPokemon = allPokemon.slice(offset, offset + PAGE_SIZE);
     
-    if (!res.ok) {
-      throw new Error('Failed to fetch data');
-    }
-    
-    return res.json();
-  } catch (error) {
-    console.error('getData error, fallback to empty list', error);
-    // 降级：返回空列表，避免页面崩溃
     return {
-      count: 0,
-      results: []
+      count: totalCount,
+      results: paginatedPokemon,
     };
   }
+
+  // 没有类型过滤时，使用原来的接口
+  const offset = (page - 1) * PAGE_SIZE;
+  const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${PAGE_SIZE}&offset=${offset}`, {
+    cache: 'no-store',
+  });
+  
+  if (!res.ok) {
+    throw new Error('Failed to fetch data');
+  }
+  
+  return res.json();
 }
 
 export default async function Page(props: {
